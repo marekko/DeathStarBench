@@ -1,22 +1,35 @@
-FROM ubuntu:22.04 as builder
+FROM ubuntu:22.04 AS build
 
-WORKDIR /workspace
+RUN set -eux; \
+    apt-get -o Acquire::Retries=5 update; \
+    apt-get install -y --no-install-recommends \
+      build-essential git ca-certificates \
+      libssl-dev zlib1g-dev liblz4-dev \
+    ; \
+    rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update -y && \
-    apt-get install -y libssl-dev libz-dev luarocks make && \
-    luarocks install luasocket
+WORKDIR /src
+COPY . /src
 
-COPY src/ src/
-COPY deps/ deps/
-COPY Makefile Makefile
+RUN set -eux; \
+    if [ ! -d deps/luajit/src ]; then \
+      mkdir -p deps; \
+      git clone --depth 1 https://github.com/LuaJIT/LuaJIT.git deps/luajit; \
+    fi
 
-RUN make && make install
+RUN make -j"$(nproc)"
 
 FROM ubuntu:22.04
+RUN set -eux; \
+    apt-get -o Acquire::Retries=5 update; \
+    apt-get install -y --no-install-recommends \
+      ca-certificates libssl3 zlib1g liblz4-1 \
+      lua-socket \
+    ; \
+    rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /usr/local/bin/wrk /usr/local/bin/wrk
-COPY --from=builder /usr/local/lib/lua /usr/local/lib/lua
-COPY --from=builder /usr/local/lib/luarocks /usr/local/lib/luarocks
-COPY --from=builder /usr/local/share/lua /usr/local/share/lua
+ENV LUA_PATH="/usr/share/lua/5.1/?.lua;/usr/share/lua/5.1/?/init.lua;;"
+ENV LUA_CPATH="/usr/lib/x86_64-linux-gnu/lua/5.1/?.so;;"
 
-CMD ["/bin/bash"]
+COPY --from=build /src/wrk /usr/local/bin/wrk
+ENTRYPOINT ["wrk"]
