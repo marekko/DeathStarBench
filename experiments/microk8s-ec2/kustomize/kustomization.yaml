@@ -11,7 +11,7 @@ images:
     newName: marekko/hotel-reservation
     newTag: exp001
 
-patchesJson6902:
+patches:
   - target:
       group: apps
       version: v1
@@ -67,4 +67,5 @@ patchesJson6902:
       kind: Deployment
       name: user
     path: patches/user-cmd.json
+
 
