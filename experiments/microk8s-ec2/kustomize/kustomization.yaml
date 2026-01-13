@@ -10,3 +10,61 @@ images:
   - name: deathstarbench/hotel-reservation
     newName: marekko/hotel-reservation
     newTag: exp001
+
+patchesJson6902:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: frontend
+    path: patches/frontend-cmd.json
+
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: geo
+    path: patches/geo-cmd.json
+
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: profile
+    path: patches/profile-cmd.json
+
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: rate
+    path: patches/rate-cmd.json
+
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: recommendation
+    path: patches/recommendation-cmd.json
+
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: reservation
+    path: patches/reservation-cmd.json
+
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: search
+    path: patches/search-cmd.json
+
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: user
+    path: patches/user-cmd.json
+
