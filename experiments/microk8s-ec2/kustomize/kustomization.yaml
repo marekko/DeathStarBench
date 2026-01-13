@@ -5,3 +5,8 @@ resources:
   - ../../../hotelReservation/kubernetes
 
 namespace: hotel-res-app
+
+images:
+  - name: deathstarbench/hotel-reservation
+    newName: marekko/hotel-reservation
+    newTag: exp001
