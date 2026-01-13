@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wrk2-type1
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: wrk2
+        image: ${WRK2_IMAGE}
+        command: ["/bin/sh","-lc"]
+        args:
+          - >
+            set -e;
+            wrk -D exp -t 4 -c 50 -d 60s -L
+            -s /scripts/mixed-workload_type_1.lua
+            http://frontend:5000 -R ${WRK2_RATE}
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+      volumes:
+      - name: scripts
+        configMap:
+          name: wrk2-scripts
+
