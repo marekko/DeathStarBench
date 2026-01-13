@@ -1,0 +1,15 @@
+[
+  {
+    "op": "replace",
+    "path": "/spec/template/spec/containers/0/env",
+    "value": [
+      {
+        "name": "JAEGER_AGENT_HOST",
+        "valueFrom": { "fieldRef": { "fieldPath": "status.hostIP" } }
+      },
+      { "name": "JAEGER_AGENT_PORT", "value": "6831" },
+      { "name": "JAEGER_SAMPLER_TYPE", "value": "const" },
+      { "name": "JAEGER_SAMPLER_PARAM", "value": "1" }
+    ]
+  }
+]

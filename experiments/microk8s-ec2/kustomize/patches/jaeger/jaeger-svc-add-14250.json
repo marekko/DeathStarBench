@@ -1,0 +1,12 @@
+[
+  {
+    "op": "add",
+    "path": "/spec/ports/-",
+    "value": {
+      "name": "grpc-collector",
+      "port": 14250,
+      "protocol": "TCP",
+      "targetPort": 14250
+    }
+  }
+]

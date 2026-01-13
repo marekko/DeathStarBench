@@ -1,10 +1,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-resources:
-  - ../../../hotelReservation/kubernetes
-
 namespace: hotel-res-app
+
+resources:
+  - namespace.yaml
+  - ../../../hotelReservation/kubernetes
+  - jaeger-agent-daemonset.yaml
 
 images:
   - name: deathstarbench/hotel-reservation
@@ -12,60 +14,42 @@ images:
     newTag: exp001
 
 patches:
-  - target:
-      group: apps
-      version: v1
-      kind: Deployment
-      name: frontend
-    path: patches/frontend-cmd.json
+  # Fix binary command paths (your image uses /go/bin/*)
+  - target: { group: apps, version: v1, kind: Deployment, name: frontend }
+    path: patches/cmd/frontend.json
+  - target: { group: apps, version: v1, kind: Deployment, name: geo }
+    path: patches/cmd/geo.json
+  - target: { group: apps, version: v1, kind: Deployment, name: profile }
+    path: patches/cmd/profile.json
+  - target: { group: apps, version: v1, kind: Deployment, name: rate }
+    path: patches/cmd/rate.json
+  - target: { group: apps, version: v1, kind: Deployment, name: recommendation }
+    path: patches/cmd/recommendation.json
+  - target: { group: apps, version: v1, kind: Deployment, name: reservation }
+    path: patches/cmd/reservation.json
+  - target: { group: apps, version: v1, kind: Deployment, name: search }
+    path: patches/cmd/search.json
+  - target: { group: apps, version: v1, kind: Deployment, name: user }
+    path: patches/cmd/user.json
 
-  - target:
-      group: apps
-      version: v1
-      kind: Deployment
-      name: geo
-    path: patches/geo-cmd.json
+  # Send spans to local jaeger-agent (DaemonSet)
+  - target: { group: apps, version: v1, kind: Deployment, name: frontend }
+    path: patches/jaeger/frontend-agent-nodeip.json
+  - target: { group: apps, version: v1, kind: Deployment, name: geo }
+    path: patches/jaeger/geo-agent-nodeip.json
+  - target: { group: apps, version: v1, kind: Deployment, name: profile }
+    path: patches/jaeger/profile-agent-nodeip.json
+  - target: { group: apps, version: v1, kind: Deployment, name: rate }
+    path: patches/jaeger/rate-agent-nodeip.json
+  - target: { group: apps, version: v1, kind: Deployment, name: recommendation }
+    path: patches/jaeger/recommendation-agent-nodeip.json
+  - target: { group: apps, version: v1, kind: Deployment, name: reservation }
+    path: patches/jaeger/reservation-agent-nodeip.json
+  - target: { group: apps, version: v1, kind: Deployment, name: search }
+    path: patches/jaeger/search-agent-nodeip.json
+  - target: { group: apps, version: v1, kind: Deployment, name: user }
+    path: patches/jaeger/user-agent-nodeip.json
 
-  - target:
-      group: apps
-      version: v1
-      kind: Deployment
-      name: profile
-    path: patches/profile-cmd.json
-
-  - target:
-      group: apps
-      version: v1
-      kind: Deployment
-      name: rate
-    path: patches/rate-cmd.json
-
-  - target:
-      group: apps
-      version: v1
-      kind: Deployment
-      name: recommendation
-    path: patches/recommendation-cmd.json
-
-  - target:
-      group: apps
-      version: v1
-      kind: Deployment
-      name: reservation
-    path: patches/reservation-cmd.json
-
-  - target:
-      group: apps
-      version: v1
-      kind: Deployment
-      name: search
-    path: patches/search-cmd.json
-
-  - target:
-      group: apps
-      version: v1
-      kind: Deployment
-      name: user
-    path: patches/user-cmd.json
-
-
+  # Ensure jaeger Service exposes collector gRPC (14250) for the agents
+  - target: { version: v1, kind: Service, name: jaeger }
+    path: patches/jaeger/jaeger-svc-add-14250.json
